@@ -496,7 +496,9 @@ class WP_Admin_Bar {
 		add_action( 'admin_bar_menu', 'wp_admin_bar_wp_menu', 10 );
 		add_action( 'admin_bar_menu', 'wp_admin_bar_my_sites_menu', 20 );
 		add_action( 'admin_bar_menu', 'wp_admin_bar_site_menu', 30 );
-		add_action( 'admin_bar_menu', 'wp_admin_bar_updates_menu', 40 );
+
+		if( !WP_Http::block_request( 'http://api.wordpress.org' ) )
+			add_action( 'admin_bar_menu', 'wp_admin_bar_updates_menu', 40 );
 
 		// Content related.
 		if ( ! is_network_admin() && ! is_user_admin() ) {

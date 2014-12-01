@@ -243,6 +243,13 @@ function update_right_now_message() {
 function get_plugin_updates() {
 	$all_plugins = get_plugins();
 	$upgrade_plugins = array();
+
+
+	if( WP_Http::block_request( $url ) )
+
+		return array();
+
+
 	$current = get_site_transient( 'update_plugins' );
 	foreach ( (array)$all_plugins as $plugin_file => $plugin_data) {
 		if ( isset( $current->response[ $plugin_file ] ) ) {
@@ -255,7 +262,7 @@ function get_plugin_updates() {
 }
 
 function wp_plugin_update_rows() {
-	if ( !current_user_can('update_plugins' ) )
+	if ( !current_user_can('update_plugins' ) || WP_Http::block_request( 'http://api.wordpress.org' ) )
 		return;
 
 	$plugins = get_site_transient( 'update_plugins' );
@@ -349,7 +356,7 @@ function get_theme_updates() {
 }
 
 function wp_theme_update_rows() {
-	if ( !current_user_can('update_themes' ) )
+	if ( !current_user_can('update_themes' ) || WP_Http::block_request( 'http://api.wordpress.org' ))
 		return;
 
 	$themes = get_site_transient( 'update_themes' );
@@ -425,7 +432,7 @@ function maintenance_nag() {
 			$nag = true;
 	}
 
-	if ( ! $nag )
+	if ( ! $nag || WP_Http::block_request( 'http://api.wordpress.org' ) )
 		return false;
 
 	if ( current_user_can('update_core') )

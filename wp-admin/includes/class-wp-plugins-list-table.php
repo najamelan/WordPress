@@ -97,7 +97,7 @@ class WP_Plugins_List_Table extends WP_List_Table {
 			if ( apply_filters( 'show_advanced_plugins', true, 'dropins' ) )
 				$plugins['dropins'] = get_dropins();
 
-			if ( current_user_can( 'update_plugins' ) ) {
+			if ( current_user_can( 'update_plugins' && !WP_Http::block_request( 'http://api.wordpress.org' ) ) ) {
 				$current = get_site_transient( 'update_plugins' );
 				foreach ( (array) $plugins['all'] as $plugin_file => $plugin_data ) {
 					if ( isset( $current->response[ $plugin_file ] ) ) {
@@ -248,8 +248,14 @@ class WP_Plugins_List_Table extends WP_List_Table {
 
 		$status_links = array();
 		foreach ( $totals as $type => $count ) {
-			if ( !$count )
+			if
+			(
+				   !$count
+				|| $type === 'upgrade' && WP_Http::block_request( 'http://api.wordpress.org' )
+			)
+			{
 				continue;
+			}
 
 			switch ( $type ) {
 				case 'all':
@@ -299,7 +305,7 @@ class WP_Plugins_List_Table extends WP_List_Table {
 			$actions['deactivate-selected'] = $this->screen->in_admin( 'network' ) ? __( 'Network Deactivate' ) : __( 'Deactivate' );
 
 		if ( !is_multisite() || $this->screen->in_admin( 'network' ) ) {
-			if ( current_user_can( 'update_plugins' ) )
+			if ( current_user_can( 'update_plugins' ) && !WP_Http::block_request( 'http://api.wordpress.org' ))
 				$actions['update-selected'] = __( 'Update' );
 			if ( current_user_can( 'delete_plugins' ) && ( 'active' != $status ) )
 				$actions['delete-selected'] = __( 'Delete' );

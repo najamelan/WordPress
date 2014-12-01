@@ -30,18 +30,22 @@ if ( is_multisite() ) {
 	$submenu[ 'index.php' ][5] = array( __('My Sites'), 'read', 'my-sites.php' );
 }
 
-if ( ! is_multisite() || is_super_admin() )
-	$update_data = wp_get_update_data();
 
-if ( ! is_multisite() ) {
-	if ( current_user_can( 'update_core' ) )
-		$cap = 'update_core';
-	elseif ( current_user_can( 'update_plugins' ) )
-		$cap = 'update_plugins';
-	else
-		$cap = 'update_themes';
-	$submenu[ 'index.php' ][10] = array( sprintf( __('Updates %s'), "<span class='update-plugins count-{$update_data['counts']['total']}' title='{$update_data['title']}'><span class='update-count'>" . number_format_i18n($update_data['counts']['total']) . "</span></span>" ), $cap, 'update-core.php');
-	unset( $cap );
+if( !WP_Http::block_request( 'http://api.wordpress.org' ) )
+{
+	if ( ! is_multisite() || is_super_admin() )
+		$update_data = wp_get_update_data();
+
+	if ( ! is_multisite() ) {
+		if ( current_user_can( 'update_core' ) )
+			$cap = 'update_core';
+		elseif ( current_user_can( 'update_plugins' ) )
+			$cap = 'update_plugins';
+		else
+			$cap = 'update_themes';
+		$submenu[ 'index.php' ][10] = array( sprintf( __('Updates %s'), "<span class='update-plugins count-{$update_data['counts']['total']}' title='{$update_data['title']}'><span class='update-count'>" . number_format_i18n($update_data['counts']['total']) . "</span></span>" ), $cap, 'update-core.php');
+		unset( $cap );
+	}
 }
 
 $menu[4] = array( '', 'read', 'separator1', '', 'wp-menu-separator' );
@@ -168,7 +172,7 @@ function _add_themes_utility_last() {
 }
 
 $count = '';
-if ( ! is_multisite() && current_user_can( 'update_plugins' ) ) {
+if ( ! is_multisite() && current_user_can( 'update_plugins' ) && !WP_Http::block_request( 'http://api.wordpress.org' ) ) {
 	if ( ! isset( $update_data ) )
 		$update_data = wp_get_update_data();
 	$count = "<span class='update-plugins count-{$update_data['counts']['plugins']}'><span class='plugin-count'>" . number_format_i18n($update_data['counts']['plugins']) . "</span></span>";
