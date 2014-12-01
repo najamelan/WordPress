@@ -297,6 +297,12 @@ function wp_update_plugins( $extra_stats = array() ) {
 	if ( $ssl = wp_http_supports( array( 'ssl' ) ) )
 		$url = set_url_scheme( $url, 'https' );
 
+
+	if( WP_Http::block_request( $url ) )
+
+		return;
+
+
 	$raw_response = wp_remote_post( $url, $options );
 	if ( $ssl && is_wp_error( $raw_response ) ) {
 		trigger_error( __( 'An unexpected error occurred. Something may be wrong with WordPress.org or this server&#8217;s configuration. If you continue to have problems, please try the <a href="https://wordpress.org/support/">support forums</a>.' ) . ' ' . __( '(WordPress could not establish a secure connection to WordPress.org. Please contact your server administrator.)' ), headers_sent() || WP_DEBUG ? E_USER_WARNING : E_USER_NOTICE );
@@ -458,6 +464,12 @@ function wp_update_themes( $extra_stats = array() ) {
 	$url = $http_url = 'http://api.wordpress.org/themes/update-check/1.1/';
 	if ( $ssl = wp_http_supports( array( 'ssl' ) ) )
 		$url = set_url_scheme( $url, 'https' );
+
+
+	if( WP_Http::block_request( $url ) )
+
+		return false;
+
 
 	$raw_response = wp_remote_post( $url, $options );
 	if ( $ssl && is_wp_error( $raw_response ) ) {
