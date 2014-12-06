@@ -53,6 +53,10 @@ function translations_api( $type, $args = null ) {
 			$options['body']['slug'] = $args['slug']; // Plugin or theme slug
 		}
 
+		if( WP_Http::block_request( $url ) )
+
+			return new WP_Error();
+
 		$request = wp_remote_post( $url, $options );
 
 		if ( $ssl && is_wp_error( $request ) ) {
